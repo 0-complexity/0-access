@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>0-access</title>
+    <style>
+body, html {width: 100%; height: 100%; margin: 0; padding: 0; background-color: black; color: white; font-family: monospace;}
+.high-light {color:yellow;}
+a {color: green}
+    </style>
+</head>
+<body>
+    <div id="main">
+    </div>
+    <script type="text/javascript">
+var main = document.getElementById("main");
+main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">Initializing ...</span>";
+var launch = function () {
+    main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">Provisioning your ssh session. Plz wait ...</span>";
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var info = JSON.parse(this.responseText);
+            window.location = "chrome-extension://pnhechapfaindjhompbnflcldabbghjo/html/nassh.html#"+info.username+"@"+info.ssh_ip+":"+info.ssh_port;
+        }
+    };
+    xhttp.open("POST", "/provision/{{remote}}", true);
+    xhttp.send();
+};
+var is_chrome = ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) &&(navigator.vendor.toLowerCase().indexOf("google") > -1));
+if (is_chrome) {
+    launch();
+} else {
+    main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">The SSH Access is only supported via chrome browser.</span>";
+}
+    </script>
+</body>
+</html>
