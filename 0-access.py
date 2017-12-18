@@ -30,7 +30,7 @@ Base = declarative_base()
 
 SESSION_INIT_TIME = 20
 SESSION_POLL_TIME = 5
-SESSION_WARN_TIME = 10
+SESSION_WARN_TIME = 300
 IP_MATCH = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}$")
 
 
@@ -102,13 +102,18 @@ def provision(remote):
     username = str(uuid.uuid4()).replace("-", "")
     home = "/home/%s" % username
     j.tools.prefab.local.system.user.create(username, home=home, shell="/bin/lash")
+    settings = dict(command="/bin/lash")
+    settings["no-agent-forwarding"] = True
+    settings["no-port-forwarding"] = True
+    settings["no-user-rc"] = True
+    settings["no-x11-forwarding"] = True
     for key in iyo_user_info["publicKeys"]:
-        j.tools.prefab.local.system.ssh.authorize(username, key["publickey"])
+        j.tools.prefab.local.system.ssh.authorize(username, key["publickey"], **settings)
 
     j.sal.fs.copyFile("/root/.ssh/id_rsa", "/home/%s/.ssh" % username)
     j.sal.fs.chown("/home/%s/.ssh" % username, username, username)
     j.sal.fs.writeFile("/home/%s/.remote" % username, "REMOTE=%s" % remote)
-    provisioned = dict(username=username, ssh_ip=app.config['SSH_IP'], ssh_port=app.config['SSH_PORT'])
+    provisioned = dict(username=username, ssh_ip=app.config['SSH_IP'], ssh_port=app.config['SSH_PORT'], warned=False)
 
     ssh_session = Session(username=username)
     ssh_session.iyo_username = iyo_user_info['username']
@@ -118,7 +123,7 @@ def provision(remote):
     ssh_session.remote = remote
     db = app.config["db"]()
     db.add(ssh_session)
-    db.commit()    
+    db.commit()
 
 
     def kill_session():
@@ -164,11 +169,12 @@ def provision(remote):
             if now > start + app.config["SSH_SESSION_TIME_OUT"]:
                 kill_session()
                 stop = True
-            elif now > start + app.config["SSH_SESSION_TIME_OUT"] - SESSION_WARN_TIME:
+            elif not provisioned["warned"] and now > start + app.config["SSH_SESSION_TIME_OUT"] - SESSION_WARN_TIME:
                 for line in lines:
                     parts = [s for s in line.split(" ") if s]
                     with open("/dev/%s" % parts[1], 'w') as f:
                         f.write("Warning: this ssh session will be closed within %s seconds\r\n" % (start + app.config['SSH_SESSION_TIME_OUT'] - now))
+                provisioned["warned"] = True
         finally:
             if not stop:
                 spawn_later(SESSION_POLL_TIME, monitor)
@@ -206,11 +212,13 @@ def sessions():
         result = dict(page=dict(href="%s/sessions?page=%s" % (app.config["ROOT_URI"], page), sessions=sessions), total_pages=page_count)
         for ssh_session in base_query.order_by(Session.start.desc())[(page-1)*10:page*10]:
             end = ssh_session.end.timestamp() if ssh_session.end else None
-            sessions.append(dict(user=dict(href="%s/sessions?user=%s" % (app.config['ROOT_URI'], ssh_session.iyo_username), username=ssh_session.iyo_username, firstname=ssh_session.iyo_firstname, lastname=ssh_session.iyo_lastname), 
-                                start=ssh_session.start.timestamp(),
-                                end=end,
-                                remote=ssh_session.remote,
-                                href="%s/sessions/%s" % (app.config['ROOT_URI'], ssh_session.username)))
+            sessions.append(dict(user=dict(href="%s/sessions?user=%s" % (app.config['ROOT_URI'], ssh_session.iyo_username), 
+                                           username=ssh_session.iyo_username, 
+                                           firstname=ssh_session.iyo_firstname, lastname=ssh_session.iyo_lastname), 
+                                 start=ssh_session.start.timestamp(),
+                                 end=end,
+                                 remote=ssh_session.remote,
+                                 href="%s/sessions/%s" % (app.config['ROOT_URI'], ssh_session.username)))
     return jsonify(result)
 
 
