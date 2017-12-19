@@ -6,6 +6,7 @@ import pickle
 import sys
 import math
 import time
+import os
 from subprocess import Popen, PIPE
 
 
@@ -47,22 +48,27 @@ def _ping():
     return "pong"
 
 
-def _get_content(session):
+def _get_content(recording):
     import io
     import ijson
     text = io.StringIO()
-    with open("/var/recordings/%s.json" % session, "rb") as f:
+    with open(recording, "rb") as f:
         for lines in ijson.items(f, 'stdout.item'):
             text.write(lines[1])
     return text.getvalue()
 
 
 def _index(session, start, end, username, remote):
+    recording = "/var/recordings/%s.json" % session
+    if not os.path.exists(recording):
+        return
     writer = idx.writer()
-    writer.add_document(session=session, start=start, end=end, 
-                        content=_get_content(session), username=username, 
-                        remote=remote)
-    writer.commit()
+    try:
+        writer.add_document(session=session, start=start, end=end, 
+                            content=_get_content(recording), username=username, 
+                            remote=remote)
+    finally:
+        writer.commit()
 
 
 def _search(query, page, username, remote):
