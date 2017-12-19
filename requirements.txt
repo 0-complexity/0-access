@@ -2,3 +2,4 @@ asciinema
 flask
 SQLAlchemy
 whoosh
+ijson
