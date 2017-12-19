@@ -98,7 +98,7 @@ def provision(remote):
         return jsonify(provisioned)
 
     iyo_user_info = session["iyo_user_info"]
-    start = time.time()
+    start = int(time.time())
     username = str(uuid.uuid4()).replace("-", "")
     home = "/home/%s" % username
     j.tools.prefab.local.system.user.create(username, home=home, shell="/bin/lash")
@@ -166,10 +166,10 @@ def provision(remote):
                 stop = True
                 return
             now = int(time.time())
-            if now > start + app.config["SSH_SESSION_TIME_OUT"]:
+            if now > (start + app.config["SSH_SESSION_TIME_OUT"]):
                 kill_session()
                 stop = True
-            elif not provisioned["warned"] and now > start + app.config["SSH_SESSION_TIME_OUT"] - SESSION_WARN_TIME:
+            elif not provisioned["warned"] and now > (start + app.config["SSH_SESSION_TIME_OUT"] - SESSION_WARN_TIME):
                 for line in lines:
                     parts = [s for s in line.split(" ") if s]
                     with open("/dev/%s" % parts[1], 'w') as f:
