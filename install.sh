@@ -5,8 +5,8 @@ JS9BRANCH=$2
 ZEROACCESSBRANCH=$3
 
 # prepare system
-apt update
-apt install -y sudo curl openssh-server locales
+apt-get update
+apt-get install -y sudo curl openssh-server locales
 
 # install bash tools
 curl https://raw.githubusercontent.com/Jumpscale/bash/${ZUTILSBRANCH}/install.sh?$RANDOM > /tmp/install.sh
