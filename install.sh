@@ -31,7 +31,7 @@ cp Flask_Itsyouonline-master/flask_itsyouonline.py /opt/0-access
 cd /opt/0-access
 pip3 install -r requirements.txt
 mkdir -p /var/recordings/index
-chmod -r 777 /var/recordings
+chmod -R 777 /var/recordings
 mkdir -p /var/run/sshd
 
 # add correct locals
