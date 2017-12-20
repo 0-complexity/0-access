@@ -83,6 +83,10 @@ def ssh(remote=None):
         return redirect("/ssh/%s" % session.get('remote'))
     if not remote:
         return 'Remote not set', 400
+    continue_ = session.get('continue')
+    if continue_:
+        del session['continue']
+        return redirect(continue_)
     return render_template('0-access.html', remote=remote)
 
 
@@ -91,6 +95,7 @@ def provision(remote):
     if not IP_MATCH.match(remote):
         return 'Bad remote', 400
     if not 'iyo_user_info' in session:
+        session['continue'] = '/provision/%s' % remote
         return redirect("/")
 
     provisioned = session.get("provisioned")
