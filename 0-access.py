@@ -86,7 +86,7 @@ def ssh(remote=None):
     return render_template('0-access.html', remote=remote)
 
 
-@app.route("/provision/<remote>", methods=["POST"])
+@app.route("/provision/<remote>", methods=["GET","POST"])
 def provision(remote):
     if not IP_MATCH.match(remote):
         return 'Bad remote', 400
