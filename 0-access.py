@@ -81,12 +81,12 @@ def ssh(remote=None):
         return redirect("/")
     if not remote and session.get('remote'):
         return redirect("/ssh/%s" % session.get('remote'))
-    if not remote:
-        return 'Remote not set', 400
     continue_ = session.get('continue')
     if continue_:
         del session['continue']
         return redirect(continue_)
+    if not remote:
+        return 'Remote not set', 400
     return render_template('0-access.html', remote=remote)
 
 
