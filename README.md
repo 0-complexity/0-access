@@ -74,6 +74,12 @@ On the organization in Itsyou.Online add an api key, configure the callback to u
 
 ![iyo](iyo.PNG)
 
+# In browser usage
+
+For the in browser ssh terminal you need to use Google Chrome browser with the [Secure Shell](https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?utm_source=chrome-app-launcher-info-dialog) extension installed.
+
+Then point your browser to uri/ssh/[target ip] to
+
 # Web services
 
 ## /provision/[target ip]

@@ -26,7 +26,7 @@ var launch = function () {
     xhttp.open("POST", "/provision/{{remote}}", true);
     xhttp.send();
 };
-var is_chrome = ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) &&(navigator.vendor.toLowerCase().indexOf("google") > -1));
+var is_chrome = ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) &&(navigator.vendor.toLowerCase().indexOf("google") > -1) && (navigator.userAgent.toLowerCase().indexOf('chromium') == -1));
 if (is_chrome) {
     launch();
 } else {
