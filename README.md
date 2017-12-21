@@ -56,8 +56,8 @@ optional arguments:
 ```
 
 ## CLI parameters explained
-- client_id: The Itsyou.Online client id of the client_id / client_secret pair authenticating 0-access.py towards the Itsyou.online oauth provider. See https://gig.gitbooks.io/itsyouonline/content/oauth2/oauth2.html for more details.
-- client_secret: The Itsyou.Online client secret of the client_id / client_secret pair authenticating 0-access.py towards the Itsyou.online oauth provider. See https://gig.gitbooks.io/itsyouonline/content/oauth2/oauth2.html for more details.
+- client_id: The Itsyou.Online client id of the client_id / client_secret pair for the organization authenticating 0-access.py towards the Itsyou.online oauth provider. See section about setting up details in Itsyou.Online in the following paragragh.
+- client_secret: The Itsyou.Online client secret of the client_id / client_secret pair authenticating 0-access.py towards the Itsyou.online oauth provider. See section about setting up details in Itsyou.Online in the following paragragh.
 - organization: The organization in Itsyou.online of which people need to be member of to be able to have access to the 0-access server.
 - uri: The public exposed uri that users need to target to access the 0-access server.
 - port: The port to which the 0-access server needs to listen for incomming http requests. It is recommended to put a reverse proxy server in front of the 0-access server that accepts https connections and proxies them to the 0-access http server.
@@ -66,7 +66,11 @@ optional arguments:
 - session_timeout: The maximum amount of seconds for an ssh session.
 
 ## Configuring the IYO client_id / client_secret
-On the organization in Itsyou.Online add an api key, configure the callback to uri/callback and select the "May be used in client credentials" switch.
+Access to the 0-access server is authenticated and authorized by means of the Itsyou.Online oauth provider.
+
+If you do not have a organization in Itsyou.Online yet, please create it. Its free, don't worry about it. Just register yourself and go.
+
+On the organization in Itsyou.Online add an api key, configure the callback to uri/callback and select the "May be used in client credentials" switch. For the client_id parameter of the 0-access server, you need to use the name of your organization. If your organization is not a toplevel organization, please specify its fully qualified path. E.g. root_org.sub_org.sub_sub_org.... The client_secret argument is the secret of the api key.
 
 ![iyo](iyo.PNG)
 
