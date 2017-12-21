@@ -14,24 +14,26 @@ a {color: green}
     <script type="text/javascript">
 var main = document.getElementById("main");
 main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">Initializing ...</span>";
-var launch = function () {
+var launch = function (is_chrome) {
     main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">Provisioning your ssh session. Plz wait ...</span>";
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             var info = JSON.parse(this.responseText);
-            window.location = "chrome-extension://pnhechapfaindjhompbnflcldabbghjo/html/nassh.html#"+info.username+"@"+info.ssh_ip+":"+info.ssh_port;
+            var coninfo = info.username + "@" + info.ssh_ip + ":" + info.ssh_port;
+            if (is_chrome) {
+                window.location = "chrome-extension://pnhechapfaindjhompbnflcldabbghjo/html/nassh.html#"+coninfo;
+            } else {
+                var sshcmd = "ssh -p " + info.ssh_port + " " + info.username + "@" + info.ssh_ip;
+                main.innerHTML = "<a href='ssh://"+ coninfo + "'>" + sshcmd + "</a>";
+            }
         }
     };
     xhttp.open("POST", "/provision/{{remote}}", true);
     xhttp.send();
 };
 var is_chrome = ((navigator.userAgent.toLowerCase().indexOf('chrome') > -1) &&(navigator.vendor.toLowerCase().indexOf("google") > -1) && (navigator.userAgent.toLowerCase().indexOf('chromium') == -1));
-if (is_chrome) {
-    launch();
-} else {
-    main.innerHTML = "root@openvcloud:/root# <span class=\"high-light\">The SSH Access is only supported via chrome browser.</span>";
-}
+launch(is_chrome);
     </script>
 </body>
 </html>
