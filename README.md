@@ -7,10 +7,13 @@ Itsyou.online authenticated and monitored ssh access via web, completely replaya
 ![ssh-through-web](web-ssh.PNG)
 *Ssh access to target nodes via chrome Secure Shell plugin*
 
-# Installation
-0-access is implemented with deployment via docker in mind.
+# Usage
+The following cmd line starts a 0-access instance on http port 5000 ip 192.168.194.177, ssh port 7022, authenticating people against the "Moehaha" organization in itsyou.online, with a timeout of 3600 seconds for the ssh session.
+```bash
+docker run --name 0-access -v /root/.ssh:/root/.ssh -p 5000:5000 -p 7022:22 openvcloud/0-access python3 /opt/0-access/0-access.py Moehaha ****** Moehaha http://192.168.194.177:5000 5000 192.168.194.177 7022 3600
+```
 
-See https://hub.docker.com/r/openvcloud/0-access/
+See also: https://hub.docker.com/r/openvcloud/0-access/
 
 ## Important mounts 
 - /root/.ssh: This directory inside the docker container expects the `id_rsa` private ssh key that has access to the nodes to which it needs to provide ssh access.
