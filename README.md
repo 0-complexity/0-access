@@ -62,6 +62,11 @@ optional arguments:
 - ssh_port: The port that users need to target to ssh to the 0-access server.
 - session_timeout: The maximum amount of seconds for an ssh session.
 
+## Configuring the IYO client_id / client_secret
+On the organization in Itsyou.Online add an api key, configure the callback to uri/callback and select the "May be used in client credentials" switch.
+
+![iyo](iyo.PNG)
+
 # Web services
 
 ## /provision/[target ip]
