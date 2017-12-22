@@ -10,7 +10,7 @@ Itsyou.online authenticated and monitored ssh access via web, completely replaya
 # Usage
 The following cmd line starts a 0-access instance on http port 5000 ip 192.168.194.177, ssh port 7022, authenticating people against the "Moehaha" organization in itsyou.online, with a timeout of 3600 seconds for the ssh session.
 ```bash
-docker run --name 0-access -v /root/.ssh:/root/.ssh -p 5000:5000 -p 7022:22 openvcloud/0-access python3 /opt/0-access/0-access.py Moehaha ****** Moehaha http://192.168.194.177:5000 5000 192.168.194.177 7022 3600
+docker run --name 0-access -v /root/.ssh:/root/.ssh -p 5000:5000 -p 7022:22 openvcloud/0-access python3 /opt/0-access/0-access.py Moehaha ****** http://192.168.194.177:5000 5000 192.168.194.177 7022 3600
 ```
 
 See also: https://hub.docker.com/r/openvcloud/0-access/
