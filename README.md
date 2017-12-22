@@ -36,15 +36,14 @@ See also: https://hub.docker.com/r/openvcloud/0-access/
 ```bash
 python3 0-access.py --help
 usage: 0-access.py [-h]
-                   client_id client_secret organization uri port ssh_ip
+                   organization client_secret uri port ssh_ip
                    ssh_port session_timeout
 
 0-access server
 
 positional arguments:
-  client_id        Itsyou.Online client id
-  client_secret    Itsyou.Online client secret
   organization     Itsyou.Online organization
+  client_secret    Itsyou.Online client secret
   uri              uri, Eg http://localhost:4000
   port             Port to listen for connections
   ssh_ip           Ip address for the ssh server
@@ -56,9 +55,8 @@ optional arguments:
 ```
 
 ## CLI parameters explained
-- client_id: The Itsyou.Online client id of the client_id / client_secret pair for the organization authenticating 0-access.py towards the Itsyou.online oauth provider. See section about setting up details in Itsyou.Online in the following paragragh.
-- client_secret: The Itsyou.Online client secret of the client_id / client_secret pair authenticating 0-access.py towards the Itsyou.online oauth provider. See section about setting up details in Itsyou.Online in the following paragragh.
 - organization: The organization in Itsyou.online of which people need to be member of to be able to have access to the 0-access server.
+- client_secret: The Itsyou.Online client secret of the client_id / client_secret pair authenticating 0-access.py towards the Itsyou.online oauth provider. See section about setting up details in Itsyou.Online in the following paragragh.
 - uri: The public exposed uri that users need to target to access the 0-access server.
 - port: The port to which the 0-access server needs to listen for incomming http requests. It is recommended to put a reverse proxy server in front of the 0-access server that accepts https connections and proxies them to the 0-access http server.
 - ssh_ip: The ip address that users need to target to ssh to the 0-access server.

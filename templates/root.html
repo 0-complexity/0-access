@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>0-access</title>
+    <style>
+body, html {width: 100%; height: 100%; margin: 0; padding: 0; background-color: black; color: white; font-family: monospace;}
+.high-light {color:yellow;}
+a {color: green}
+input {border: none; background: transparent; color: white;}
+input:focus {outline:none;}
+    </style>
+</head>
+<body>
+    <span id="history">0-access:/root# </span>
+    <input id="prompt" type="text">
+    <script type="text/javascript">
+var hist = document.getElementById("history");
+var input = document.getElementById("prompt");
+var commandMatch = /([0-9]{1,3}\.){3}[0-9]{1,3}/
+input.focus();
+input.onkeypress = function (e) {
+    if (e.keyCode == 13) {
+        var command = input.value.trim();
+        var remote = commandMatch.exec(command);
+        if (remote) {
+            window.location = "/ssh/" + remote[0];
+        } else {
+            if (command) {
+                hist.innerHTML = hist.innerHTML + command + "<br>" + "'" + command + "' is not recognized as an internal or external command,<br>operable program or batch file.<br><br>0-access:/root# ";
+                input.value = "";
+            } else {
+                hist.innerHTML = hist.innerHTML + "<br>" + "0-access:/root# ";
+            }
+        }
+    }
+};
+    </script>
+</body>
+</html>
