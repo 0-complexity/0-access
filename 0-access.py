@@ -35,29 +35,17 @@ Base = declarative_base() # pylint: disable=C0103
 SESSION_INIT_TIME = 20
 SESSION_POLL_TIME = 5
 SESSION_WARN_TIME = 300
-IP_MATCH = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}$")
+IP_MATCH = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}$") # pylint: disable=W1401
 
 
 app = flask.Flask(__name__)  # pylint: disable=C0103
 app.secret_key = os.urandom(24)
 
 
-def run():
+def run(args):
     """
     Main entry function
     """
-    import argparse
-    parser = argparse.ArgumentParser(description='0-access server')
-    #parser.add_argument('client_id', type=str, help='Itsyou.Online client id')
-    parser.add_argument('organization', type=str, help='Itsyou.Online organization')
-    parser.add_argument('client_secret', type=str, help='Itsyou.Online client secret')
-    parser.add_argument('uri', type=str, help='uri, Eg http://localhost:4000')
-    parser.add_argument('port', type=int, help='Port to listen for connections')
-    parser.add_argument('ssh_ip', type=str, help='Ip address for the ssh server')
-    parser.add_argument('ssh_port', type=int, help='Port for the ssh server')
-    parser.add_argument('session_timeout', type=int,
-                        help='Time when session will timeout, and be killed')
-    args = parser.parse_args()
 
     config = {
         'ROOT_URI': args.uri,
@@ -285,4 +273,14 @@ class Session(Base):
 
 
 if __name__ == "__main__":
-    run()
+    import argparse
+    parser = argparse.ArgumentParser(description='0-access server') # pylint: disable=C0103
+    parser.add_argument('organization', type=str, help='Itsyou.Online organization')
+    parser.add_argument('client_secret', type=str, help='Itsyou.Online client secret')
+    parser.add_argument('uri', type=str, help='uri, Eg http://localhost:4000')
+    parser.add_argument('port', type=int, help='Port to listen for connections')
+    parser.add_argument('ssh_ip', type=str, help='Ip address for the ssh server')
+    parser.add_argument('ssh_port', type=int, help='Port for the ssh server')
+    parser.add_argument('session_timeout', type=int,
+                        help='Time when session will timeout, and be killed')
+    run(parser.parse_args())
