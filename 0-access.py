@@ -32,7 +32,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base() # pylint: disable=C0103
 
 
-SESSION_INIT_TIME = 20
+SESSION_INIT_TIME = 120
 SESSION_POLL_TIME = 5
 SESSION_WARN_TIME = 300
 IP_MATCH = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}$") # pylint: disable=W1401
@@ -256,6 +256,14 @@ def session_download(session_id):
         return "Session recording not found!", 404
     return j.sal.fs.readFile(filename)
 
+
+@app.route("/server/config")                                                                                                                                                                       
+@authenticated                                                                                                                                                                                     
+def get_session_init_time():                                                                                                                                                                       
+    """                                                                                                                                                                                            
+    GET session init time                                                                                                                                                                          
+    """                                                                                                                                                                                            
+    return jsonify({'session_init_time': SESSION_INIT_TIME})
 
 class Session(Base):
     """
