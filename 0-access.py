@@ -102,7 +102,6 @@ def provision(remote):
     """
     if not IP_MATCH.match(remote):
         return 'Bad remote %s' % remote, 400
-
     iyo_user_info = session["iyo_user_info"]
     start = int(time.time())
     username = str(uuid.uuid4()).replace("-", "")
@@ -154,9 +153,12 @@ def provision(remote):
             else:
                 break
         ssh_session.end = func.now()
-        database.commit()
         idx = app.config["idx"]
-        idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
+        if not j.sal.fs.exists("/var/recordings/%s.json" % username):
+            database.delete(ssh_session)
+        else:
+            idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
+        database.commit()
         j.tools.prefab.local.system.user.remove(username, rmhome=True)
 
 
