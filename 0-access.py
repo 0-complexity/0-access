@@ -152,13 +152,14 @@ def provision(remote):
                     break
             else:
                 break
-        ssh_session.end = func.now()
         idx = app.config["idx"]
         if not j.sal.fs.exists("/var/recordings/%s.json" % username):
             database.delete(ssh_session)
+            database.commit()
         else:
+            ssh_session.end = func.now()
+            database.commit()
             idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
-        database.commit()
         j.tools.prefab.local.system.user.remove(username, rmhome=True)
 
 
