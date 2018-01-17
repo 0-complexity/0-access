@@ -262,11 +262,21 @@ def session_download(session_id):
 
 @app.route("/server/config")                                                                                                                                                                       
 @authenticated                                                                                                                                                                                     
-def get_session_init_time():                                                                                                                                                                       
-    """                                                                                                                                                                                            
-    GET session init time                                                                                                                                                                          
-    """                                                                                                                                                                                            
+def get_session_init_time():
+    """
+    GET session init time
+    """
     return jsonify({'session_init_time': SESSION_INIT_TIME})
+
+
+@app.route("/search")                                                                                                                                                                       
+@authenticated                                                                                                                                                                                     
+def search():
+    """
+    GET search page
+    """
+    return render_template('search.html')
+
 
 class Session(Base):
     """
