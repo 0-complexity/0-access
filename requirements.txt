@@ -1,4 +1,4 @@
-asciinema
+asciinema==1.4.0
 flask
 SQLAlchemy
 whoosh
