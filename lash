@@ -4,4 +4,4 @@ export LC_ALL
 PYTHONUNBUFFERED=true
 export PYTHONUNBUFFERED
 source ~/.remote
-asciinema rec /var/recordings/$USER.json -c "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${REMOTE}" -w 2
+asciinema rec /var/recordings/$USER.json -c "ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${REMOTE}" -w 2
