@@ -108,7 +108,6 @@ def provision(remote):
     home = "/home/%s" % username
     j.tools.prefab.local.system.user.create(username, home=home, shell="/bin/lash")
     settings = dict(command="/bin/lash")
-    settings["no-agent-forwarding"] = True
     settings["no-port-forwarding"] = True
     settings["no-user-rc"] = True
     settings["no-x11-forwarding"] = True
