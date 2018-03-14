@@ -163,25 +163,21 @@ def provision(remote):
 
 
     def _monitor():
+        now = int(time.time())
         stop = False
         try:
-            exit_code, stdout, stderr = j.tools.prefab.local.core.run("who")
-            if exit_code != 0:
-                app.logger.error('Failed to list ttys\n%s', stderr)
-                return
-            lines = [line for line in stdout.splitlines() if username in line]
-            app.logger.info('User %s %s has %s ssh sessions!', iyo_user_info['firstname'],
-                            iyo_user_info['lastname'], len(lines))
-            if not lines:
-                _kill_session()
+            if not j.sal.fs.exists("/home/%s/.started" % username):
                 stop = True
-                return
-            now = int(time.time())
-            if now > (start + app.config["SSH_SESSION_TIME_OUT"]):
-                _kill_session()
+            if j.sal.fs.exists("/home/%s/.ended" % username):
+                stop = True
+            elif now > (start + app.config["SSH_SESSION_TIME_OUT"]):
                 stop = True
             elif not provisioned["warned"] and now > (start + app.config["SSH_SESSION_TIME_OUT"]
                                                       - SESSION_WARN_TIME):
+                exit_code, stdout, _ = j.tools.prefab.local.core.run("who")
+                if exit_code != 0:
+                    return
+                lines = [line for line in stdout.splitlines() if username in line]
                 for line in lines:
                     parts = [s for s in line.split(" ") if s]
                     with open("/dev/%s" % parts[1], 'w') as f:
@@ -189,7 +185,9 @@ def provision(remote):
                                 % (start + app.config['SSH_SESSION_TIME_OUT'] - now))
                 provisioned["warned"] = True
         finally:
-            if not stop:
+            if stop:
+                _kill_session()                
+            else:
                 spawn_later(SESSION_POLL_TIME, _monitor)
     spawn_later(SESSION_INIT_TIME, _monitor)
     return jsonify(provisioned)

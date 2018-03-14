@@ -1,7 +1,12 @@
 #!/bin/bash
 LC_ALL=en_US.UTF-8
 export LC_ALL
+if [ -f ~/.started ]; then
+    exit 1
+fi
+touch ~/.started
 PYTHONUNBUFFERED=true
 export PYTHONUNBUFFERED
 source ~/.remote
 asciinema rec /var/recordings/$USER.json -c "ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@${REMOTE}" -w 2
+touch ~/.ended
