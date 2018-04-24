@@ -1,6 +1,9 @@
+JumpScale9Prefab>=9.3.0
 asciinema==1.4.0
 flask
 SQLAlchemy
 whoosh
 ijson
 pyjwt
+gevent
+flask_itsyouonline

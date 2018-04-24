@@ -25,7 +25,7 @@ var launch = function (is_chrome) {
                 window.location = "chrome-extension://pnhechapfaindjhompbnflcldabbghjo/html/nassh.html#"+coninfo;
             } else {
                 var sshcmd = "ssh -p " + info.ssh_port + " " + info.username + "@" + info.ssh_ip;
-                main.innerHTML = "<a href='ssh://"+ coninfo + "'>" + sshcmd + "</a>";
+                main.innerHTML = "<a href='ssh://"+ coninfo + "'>" + sshcmd + "</a><br/>Password: "+info.password;
             }
         }
     };

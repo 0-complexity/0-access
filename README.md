@@ -24,7 +24,7 @@ See also: https://hub.docker.com/r/openvcloud/0-access/
 - ssh port. The ssh daemon in the docker container will be listening to port 22. This port needs to be exposed via a portmapping. The exposed port needs to correspond to the ssh port parameter passed to the 0-access.py
 
 # 0-access.py
-0-access.py is the hart of the system. It handles the 
+0-access.py is the heart of the system. It handles the 
 - authentication with itsyou.online
 - provisions tmp user accounts in the 0-access docker
 - removes tmp user accounts in the 0-access docker after they expire or when a user logs out
@@ -62,6 +62,35 @@ optional arguments:
 - ssh_ip: The ip address that users need to target to ssh to the 0-access server.
 - ssh_port: The port that users need to target to ssh to the 0-access server.
 - session_timeout: The maximum amount of seconds for an ssh session.
+
+## Running 0-access from js9
+- Install jumpscale9 [docs](https://github.com/Jumpscale/bash/blob/master/README.md)
+- Clone the 0-access repo
+```bash
+mkdir -p /opt/code/github/0-complexity/
+git clone git@github.com:0-complexity/0-access.git /opt/code/github/0-complexity/0-access
+``` 
+- Install 0-access as a js9 plugin
+```bash
+cd /opt/code/github/0-complexity/0-access
+python3 setup.py install
+```
+- from js9 shell you can configure the server parameters
+```python
+j.servers.zeroaccess.configure(            
+   instance="main",
+   uri="http://localhost:5050",
+   port=5050,
+   organization="{ORGANIZATION}",
+   client_secret="{CLIENT_SECRET}",
+   ssh_ip="127.0.0.1",
+   ssh_port=22,
+   session_timeout=120)
+```
+- Start 0-access server
+```bash
+js9 'j.servers.zeroaccess.start(background=True)'
+```
 
 ## Configuring the IYO client_id / client_secret
 Access to the 0-access server is authenticated and authorized by means of the Itsyou.Online oauth provider.

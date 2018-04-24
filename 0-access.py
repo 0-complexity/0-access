@@ -42,21 +42,21 @@ app = flask.Flask(__name__)  # pylint: disable=C0103
 app.secret_key = os.urandom(24)
 
 
-def run(args):
+def run(**kwargs):
     """
     Main entry function
     """
 
     config = {
-        'ROOT_URI': args.uri,
-        'CLIENT_SECRET': args.client_secret,
-        'SSH_IP': args.ssh_ip,
-        'SSH_PORT': args.ssh_port,
-        'SSH_SESSION_TIME_OUT': args.session_timeout
+        'ROOT_URI': kwargs['uri'],
+        'CLIENT_SECRET': kwargs['client_secret_'],
+        'SSH_IP': kwargs['ssh_ip'],
+        'SSH_PORT': kwargs['ssh_port'],
+        'SSH_SESSION_TIME_OUT': kwargs['session_timeout']
     }
     app.config.update(config)
 
-    configure(app, args.organization, args.client_secret, "%s/callback" % args.uri,
+    configure(app, kwargs['organization'], kwargs['client_secret_'], "%s/callback" % kwargs['uri'],
               '/callback', 'user:publickey:ssh')
 
     if not j.tools.prefab.local.system.process.find("sshd"):
@@ -71,7 +71,7 @@ def run(args):
     Base.metadata.create_all(engine)
     idx = index.Indexor()
     app.config["idx"] = idx
-    WSGIServer(("0.0.0.0", args.port), app.wsgi_app).serve_forever()
+    WSGIServer(("0.0.0.0", int(kwargs['port'])), app.wsgi_app).serve_forever()
 
 
 @app.route("/", methods=["GET"])
@@ -105,8 +105,10 @@ def provision(remote):
     iyo_user_info = session["iyo_user_info"]
     start = int(time.time())
     username = str(uuid.uuid4()).replace("-", "")
+    password = str(uuid.uuid4()).replace("-", "")
     home = "/home/%s" % username
-    j.tools.prefab.local.system.user.create(username, home=home, shell="/bin/lash")
+    j.tools.prefab.local.system.user.create(username, passwd=password, home=home,
+                                            shell="/bin/lash", encrypted_passwd=False)
     settings = dict(command="/bin/lash")
     settings["no-port-forwarding"] = True
     settings["no-user-rc"] = True
@@ -117,7 +119,7 @@ def provision(remote):
     j.sal.fs.copyFile("/root/.ssh/id_rsa", "/home/%s/.ssh" % username)
     j.sal.fs.chown("/home/%s/.ssh" % username, username, username)
     j.sal.fs.writeFile("/home/%s/.remote" % username, "REMOTE=%s" % remote)
-    provisioned = dict(username=username, ssh_ip=app.config['SSH_IP'],
+    provisioned = dict(username=username, password=password, ssh_ip=app.config['SSH_IP'],
                        ssh_port=app.config['SSH_PORT'],
                        warned=False)
 
@@ -301,4 +303,8 @@ if __name__ == "__main__":
     parser.add_argument('ssh_port', type=int, help='Port for the ssh server')
     parser.add_argument('session_timeout', type=int,
                         help='Time when session will timeout, and be killed')
-    run(parser.parse_args())
+    args = parser.parse_args()
+    run(uri=args.uri, port=args.port,
+        organization=args.organization, client_secret_=args.client_secret,
+        ssh_ip=args.ssh_ip, ssh_port=args.ssh_port,
+        session_timeout=args.session_timeout)
