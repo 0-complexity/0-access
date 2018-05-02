@@ -54,6 +54,8 @@ optional arguments:
   -h, --help       show this help message and exit
   --gateone-url GATEONE_URL
                         Gateone url EG http://gone.a.grid.tf
+  --private-ssh-ip PRIVATE_SSH_IP
+                        Private ssh ip to use with gateone EG 192.168.103.246
 ```
 
 ## CLI parameters explained
@@ -65,6 +67,7 @@ optional arguments:
 - ssh_port: The port that users need to target to ssh to the 0-access server.
 - session_timeout: The maximum amount of seconds for an ssh session.
 - --gateone-url: The [gateone](https://github.com/liftoff/GateOne) deployed instance if you want to use web ssh
+- --private-ssh-ip: the private ssh ip that will be used to connect by gateone if the node isn't reachable by public ip (i.e from ovc the public ip isn't reachable from the same cloudspace)
 
 ## Running 0-access from js9
 - Install jumpscale9 [docs](https://github.com/Jumpscale/bash/blob/master/README.md)
@@ -89,7 +92,8 @@ j.servers.zeroaccess.configure(
    ssh_ip="127.0.0.1",
    ssh_port=22,
    session_timeout=120,
-   gateone_url="https://gateone.a.grid.tf")
+   gateone_url="https://gateone.a.grid.tf",
+   private_ssh_ip="192.168.1.242")
 ```
 - Start 0-access server
 ```bash

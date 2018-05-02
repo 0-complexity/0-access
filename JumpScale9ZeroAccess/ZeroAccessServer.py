@@ -16,6 +16,7 @@ ssh_ip = "127.0.0.1"
 ssh_port = "22"
 session_timeout = 120
 gateone_url = ""
+private_ssh_ip = ""
 """
 JSConfigBase = j.tools.configmanager.base_class_config
 
