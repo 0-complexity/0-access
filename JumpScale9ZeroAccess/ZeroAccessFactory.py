@@ -26,7 +26,7 @@ class ZeroAccessFactory(JSConfigBase):
             server.start()
 
     def configure(self, instance, port, uri, organization, client_secret,
-                  ssh_ip, ssh_port, session_timeout, gateone_url="", private_ssh_ip="", interactive=False):
+                  ssh_ip, ssh_port, session_timeout, gateone_url="", interactive=False):
         data = {
             "uri": uri,
             "port": port,
@@ -35,7 +35,6 @@ class ZeroAccessFactory(JSConfigBase):
             "ssh_ip": ssh_ip,
             "ssh_port": ssh_port,
             "session_timeout": session_timeout,
-            "private_ssh_ip": private_ssh_ip,
             "gateone_url": gateone_url
         }
         self._child_class(instance=instance, data=data, parent=self, interactive=interactive)
