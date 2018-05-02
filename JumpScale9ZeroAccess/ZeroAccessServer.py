@@ -15,6 +15,7 @@ client_secret_ = ""
 ssh_ip = "127.0.0.1"
 ssh_port = "22"
 session_timeout = 120
+gateone_url = ""
 """
 JSConfigBase = j.tools.configmanager.base_class_config
 

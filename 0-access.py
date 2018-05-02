@@ -52,7 +52,8 @@ def run(**kwargs):
         'CLIENT_SECRET': kwargs['client_secret_'],
         'SSH_IP': kwargs['ssh_ip'],
         'SSH_PORT': kwargs['ssh_port'],
-        'SSH_SESSION_TIME_OUT': kwargs['session_timeout']
+        'SSH_SESSION_TIME_OUT': kwargs['session_timeout'],
+        'GATEONE_URL': kwargs['gateone_url']
     }
     app.config.update(config)
 
@@ -121,7 +122,7 @@ def provision(remote):
     j.sal.fs.writeFile("/home/%s/.remote" % username, "REMOTE=%s" % remote)
     provisioned = dict(username=username, password=password, ssh_ip=app.config['SSH_IP'],
                        ssh_port=app.config['SSH_PORT'],
-                       warned=False)
+                       warned=False, gateone_url=app.config['GATEONE_URL'])
 
     ssh_session = Session(username=username)
     ssh_session.iyo_username = iyo_user_info['username']
@@ -303,8 +304,9 @@ if __name__ == "__main__":
     parser.add_argument('ssh_port', type=int, help='Port for the ssh server')
     parser.add_argument('session_timeout', type=int,
                         help='Time when session will timeout, and be killed')
+    parser.add_argument('--gateone-url', type=str, help='Gateone url EG http://gone.a.grid.tf')
     args = parser.parse_args()
     run(uri=args.uri, port=args.port,
         organization=args.organization, client_secret_=args.client_secret,
         ssh_ip=args.ssh_ip, ssh_port=args.ssh_port,
-        session_timeout=args.session_timeout)
+        session_timeout=args.session_timeout, gateone_url=args.gateone_url)

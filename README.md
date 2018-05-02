@@ -52,6 +52,8 @@ positional arguments:
 
 optional arguments:
   -h, --help       show this help message and exit
+  --gateone-url GATEONE_URL
+                        Gateone url EG http://gone.a.grid.tf
 ```
 
 ## CLI parameters explained
@@ -62,6 +64,7 @@ optional arguments:
 - ssh_ip: The ip address that users need to target to ssh to the 0-access server.
 - ssh_port: The port that users need to target to ssh to the 0-access server.
 - session_timeout: The maximum amount of seconds for an ssh session.
+- --gateone-url: The [gateone](https://github.com/liftoff/GateOne) deployed instance if you want to use web ssh
 
 ## Running 0-access from js9
 - Install jumpscale9 [docs](https://github.com/Jumpscale/bash/blob/master/README.md)
@@ -85,7 +88,8 @@ j.servers.zeroaccess.configure(
    client_secret="{CLIENT_SECRET}",
    ssh_ip="127.0.0.1",
    ssh_port=22,
-   session_timeout=120)
+   session_timeout=120,
+   gateone_url="https://gateone.a.grid.tf")
 ```
 - Start 0-access server
 ```bash
@@ -103,10 +107,12 @@ On the organization in Itsyou.Online add an api key, configure the callback to u
 
 # In browser usage
 
-For the in browser ssh terminal you need to use Google Chrome browser with the [Secure Shell](https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?utm_source=chrome-app-launcher-info-dialog) extension installed.
+For the in browser ssh terminal you need either to use:
 
-Before accessing the 0-access server also the client should have its private ssh key loaded into the Secure Shell extension. More information on installing and configuring the Secure Shell extension: http://cs.umw.edu/~finlayson/class/cpsc225/notes/01-ssh-chrome.html
+* [gateone](https://github.com/liftoff/GateOne)
 
+* Google Chrome browser with the [Secure Shell](https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?utm_source=chrome-app-launcher-info-dialog) extension installed.
+Before accessing the 0-access server also the client should have its private ssh key loaded into the Secure Shell extension. More information on installing and configuring the Secure Shell extension: http://cs.umw.edu/~finlayson/class/cpsc225/notes/01-ssh-chrome.html.
 Then point your browser to uri/ssh/[target ip]
 
 # Web services

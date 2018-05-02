@@ -21,7 +21,10 @@ var launch = function (is_chrome) {
         if (this.readyState == 4 && this.status == 200) {
             var info = JSON.parse(this.responseText);
             var coninfo = info.username + "@" + info.ssh_ip + ":" + info.ssh_port;
-            if (is_chrome) {
+            if (info.gateone_url) {
+                window.location = `${info.gateone_url}/?ssh=ssh://${info.username}:${info.password}@${info.ssh_ip}:${info.ssh_port}`;
+            }
+            else if (is_chrome) {
                 window.location = "chrome-extension://pnhechapfaindjhompbnflcldabbghjo/html/nassh.html#"+coninfo;
             } else {
                 var sshcmd = "ssh -p " + info.ssh_port + " " + info.username + "@" + info.ssh_ip;
