@@ -109,7 +109,7 @@ On the organization in Itsyou.Online add an api key, configure the callback to u
 
 For the in browser ssh terminal you need either to use:
 
-* [gateone](https://github.com/liftoff/GateOne)
+* [gateone](https://github.com/liftoff/GateOne): you can find full docs for deployment [here](gateone.md)
 
 * Google Chrome browser with the [Secure Shell](https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo?utm_source=chrome-app-launcher-info-dialog) extension installed.
 Before accessing the 0-access server also the client should have its private ssh key loaded into the Secure Shell extension. More information on installing and configuring the Secure Shell extension: http://cs.umw.edu/~finlayson/class/cpsc225/notes/01-ssh-chrome.html.
