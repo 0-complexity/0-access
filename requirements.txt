@@ -5,5 +5,5 @@ SQLAlchemy
 whoosh
 ijson
 pyjwt
-gevent
+gevent==1.2.2
 flask_itsyouonline
