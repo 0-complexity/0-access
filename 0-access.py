@@ -27,7 +27,8 @@ from flask_itsyouonline import authenticated, configure
 from js9 import j
 from sqlalchemy import Column, DateTime, String, func
 from sqlalchemy.ext.declarative import declarative_base
-
+from threading import Lock
+lock = Lock()
 
 Base = declarative_base() # pylint: disable=C0103
 
@@ -108,14 +109,15 @@ def provision(remote):
     username = str(uuid.uuid4()).replace("-", "")
     password = str(uuid.uuid4()).replace("-", "")
     home = "/home/%s" % username
-    j.tools.prefab.local.system.user.create(username, passwd=password, home=home,
-                                            shell="/bin/lash", encrypted_passwd=False)
-    settings = dict(command="/bin/lash")
-    settings["no-port-forwarding"] = True
-    settings["no-user-rc"] = True
-    settings["no-x11-forwarding"] = True
-    for key in iyo_user_info["publicKeys"]:
-        j.tools.prefab.local.system.ssh.authorize(username, key["publickey"], **settings)
+    with lock:
+        j.tools.prefab.local.system.user.create(username, passwd=password, home=home,
+                                                shell="/bin/lash", encrypted_passwd=False)
+        settings = dict(command="/bin/lash")
+        settings["no-port-forwarding"] = True
+        settings["no-user-rc"] = True
+        settings["no-x11-forwarding"] = True
+        for key in iyo_user_info["publicKeys"]:
+            j.tools.prefab.local.system.ssh.authorize(username, key["publickey"], **settings)
 
     j.sal.fs.copyFile("/root/.ssh/id_rsa", "/home/%s/.ssh" % username)
     j.sal.fs.chown("/home/%s/.ssh" % username, username, username)
