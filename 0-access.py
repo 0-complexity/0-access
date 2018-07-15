@@ -27,6 +27,7 @@ from flask_itsyouonline import authenticated, configure
 from js9 import j
 from sqlalchemy import Column, DateTime, String, func
 from sqlalchemy.ext.declarative import declarative_base
+import signal
 from threading import Lock
 lock = Lock()
 
@@ -42,12 +43,18 @@ IP_MATCH = re.compile("^([0-9]{1,3}\.){3}[0-9]{1,3}$") # pylint: disable=W1401
 app = flask.Flask(__name__)  # pylint: disable=C0103
 app.secret_key = os.urandom(24)
 
+def _signal_handler(signum, frame):
+    try:
+        os.wait()
+    except:
+        # no children found
+        pass
 
 def run(**kwargs):
     """
     Main entry function
     """
-
+    signal.signal(signal.SIGCHLD, _signal_handler)
     config = {
         'ROOT_URI': kwargs['uri'],
         'CLIENT_SECRET': kwargs['client_secret_'],
@@ -112,6 +119,7 @@ def provision(remote):
     with lock:
         j.tools.prefab.local.system.user.create(username, passwd=password, home=home,
                                                 shell="/bin/lash", encrypted_passwd=False)
+        j.tools.prefab.local.core.dir_ensure("%s/.ssh" % home, owner=username, group=username, mode="700")
         settings = dict(command="/bin/lash")
         settings["no-port-forwarding"] = True
         settings["no-user-rc"] = True
