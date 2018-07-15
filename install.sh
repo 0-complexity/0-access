@@ -11,8 +11,7 @@ apt-get install -y sudo curl openssh-server locales
 # install bash tools
 curl https://raw.githubusercontent.com/Jumpscale/bash/${ZUTILSBRANCH}/install.sh?$RANDOM > /tmp/install.sh
 bash /tmp/install.sh
-source ~/.bash_profile
-
+. /opt/code/github/jumpscale/bash/zlibs.sh
 # install jumpscale
 ZInstall_host_js9_full
 
