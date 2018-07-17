@@ -18,12 +18,12 @@ ZInstall_host_js9_full
 # install 0-access software
 cd
 wget https://github.com/0-complexity/0-access/archive/${ZEROACCESSBRANCH}.zip
-unzip master.zip
+unzip ${ZEROACCESSBRANCH}.zip
 mkdir -p /opt/0-access
 cp -r 0-access-${ZEROACCESSBRANCH}/* /opt/0-access
 cp 0-access-${ZEROACCESSBRANCH}/lash /bin
 chmod 755 /bin/lash
-rm master.zip
+rm ${ZEROACCESSBRANCH}.zip
 wget https://github.com/xmonader/Flask_Itsyouonline/archive/master.zip
 unzip master.zip
 cp Flask_Itsyouonline-master/flask_itsyouonline.py /opt/0-access

@@ -71,7 +71,7 @@ def run(**kwargs):
     if not j.tools.prefab.local.system.process.find("sshd"):
         j.tools.prefab.local.core.run("/usr/sbin/sshd")
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///0-access.sqlite')
+    engine = create_engine('sqlite:///var/recordings/0-access.sqlite')
 
     from sqlalchemy.orm import sessionmaker
     db_session = sessionmaker()
