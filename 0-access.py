@@ -71,7 +71,7 @@ def run(**kwargs):
     if not j.tools.prefab.local.system.process.find("sshd"):
         j.tools.prefab.local.core.run("/usr/sbin/sshd")
     from sqlalchemy import create_engine
-    engine = create_engine('sqlite:///var/recordings/0-access.sqlite')
+    engine = create_engine('sqlite:////var/recordings/0-access.sqlite')
 
     from sqlalchemy.orm import sessionmaker
     db_session = sessionmaker()
@@ -164,15 +164,19 @@ def provision(remote):
                     break
             else:
                 break
-        idx = app.config["idx"]
-        if not j.sal.fs.exists("/var/recordings/%s.json" % username):
-            database.delete(ssh_session)
-            database.commit()
-        else:
-            ssh_session.end = func.now()
-            database.commit()
-            idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
-        j.tools.prefab.local.system.user.remove(username, rmhome=True)
+        try:
+            idx = app.config["idx"]
+            if not j.sal.fs.exists("/var/recordings/%s.json" % username):
+                database.delete(ssh_session)
+                database.commit()
+            else:
+                ssh_session.end = func.now()
+                database.commit()
+                with lock:
+                    idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
+        finally:
+            if j.sal.fs.exists('/home/%s' % username):
+                j.tools.prefab.local.system.user.remove(username, rmhome=True)
 
 
     def _monitor():

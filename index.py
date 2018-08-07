@@ -26,10 +26,7 @@ class Indexor():
         pickle.dump((method, args), self._process.stdin, protocol=pickle.HIGHEST_PROTOCOL)
         self._process.stdin.flush()
         success, result = pickle.load(self._process.stdout)
-        if success:
-            return result
-        else:
-            raise result
+        return result
 
 
     def ping(self):
