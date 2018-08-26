@@ -1,20 +1,8 @@
 #!/bin/bash
 set -e
-ZUTILSBRANCH=$1
-JS9BRANCH=$2
-ZEROACCESSBRANCH=$3
-
 # prepare system
 apt-get update
 apt-get install -y sudo curl openssh-server locales
-
-# install bash tools
-curl https://raw.githubusercontent.com/Jumpscale/bash/${ZUTILSBRANCH}/install.sh?$RANDOM > /tmp/install.sh
-bash /tmp/install.sh
-. /opt/code/github/jumpscale/bash/zlibs.sh
-# install jumpscale
-ZInstall_host_js9_full
-
 # install 0-access software
 cd
 wget https://github.com/0-complexity/0-access/archive/${ZEROACCESSBRANCH}.zip

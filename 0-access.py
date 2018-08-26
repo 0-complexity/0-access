@@ -24,11 +24,16 @@ from flask import jsonify, render_template, request, session
 import index
 import psutil
 from flask_itsyouonline import authenticated, configure
-from js9 import j
 from sqlalchemy import Column, DateTime, String, func
 from sqlalchemy.ext.declarative import declarative_base
 import signal
 from threading import Lock
+import subprocess
+from subprocess import  check_output, CalledProcessError, call, run
+import crypt
+import os
+import shutil
+
 lock = Lock()
 
 Base = declarative_base() # pylint: disable=C0103
@@ -68,8 +73,12 @@ def run(**kwargs):
     configure(app, kwargs['organization'], kwargs['client_secret_'], "%s/callback" % kwargs['uri'],
               '/callback', 'user:publickey:ssh')
 
-    if not j.tools.prefab.local.system.process.find("sshd"):
-        j.tools.prefab.local.core.run("/usr/sbin/sshd")
+    try:
+        #check if sshd is running if not run it
+        check_output(['pidof', '-s', 'sshd'])
+    except CalledProcessError:
+        call(["/usr/sbin/sshd"])
+
     from sqlalchemy import create_engine
     engine = create_engine('sqlite:////var/recordings/0-access.sqlite')
 
@@ -91,7 +100,6 @@ def root():
     """
     return render_template('root.html')
 
-
 @app.route("/ssh/<remote>", methods=["GET"])
 @authenticated
 def ssh(remote):
@@ -102,6 +110,24 @@ def ssh(remote):
         return 'Bad remote', 400
     return render_template('0-access.html', remote=remote)
 
+def authorize(user, key, authorized_keys, **kwargs):
+    settings = list()
+    for setting, value in kwargs.items():
+        if value is True:
+            settings.append(setting)
+        else:
+            settings.append('%s="%s"' % (setting, value))
+    if settings:
+        line = "%s %s" % (",".join(settings), key)
+    else:
+        line = key
+
+    if os.path.exists(authorized_keys):
+        with open(authorized_keys, 'a+') as f:
+            f.write(line + '\n')
+    else:
+        with open(authorized_keys, 'w+') as f:
+            f.write(line + '\n')
 
 @app.route("/provision/<remote>", methods=["GET", "POST"])
 @authenticated
@@ -117,19 +143,23 @@ def provision(remote):
     password = str(uuid.uuid4()).replace("-", "")
     home = "/home/%s" % username
     with lock:
-        j.tools.prefab.local.system.user.create(username, passwd=password, home=home,
-                                                shell="/bin/lash", encrypted_passwd=False)
-        j.tools.prefab.local.core.dir_ensure("%s/.ssh" % home, owner=username, group=username, mode="700")
+        call(['useradd', username, '-p', crypt.crypt(password), '-d', home, '-s', '/bin/lash'])
+        ssh_dir = '{home}/.ssh'.format(home=home)
+        os.makedirs(ssh_dir)
+        shutil.chown(ssh_dir, username, username)
+        os.chmod(ssh_dir, 0o700)
         settings = dict(command="/bin/lash")
         settings["no-port-forwarding"] = True
         settings["no-user-rc"] = True
         settings["no-x11-forwarding"] = True
-        for key in iyo_user_info["publicKeys"]:
-            j.tools.prefab.local.system.ssh.authorize(username, key["publickey"], **settings)
 
-    j.sal.fs.copyFile("/root/.ssh/id_rsa", "/home/%s/.ssh" % username)
-    j.sal.fs.chown("/home/%s/.ssh" % username, username, username)
-    j.sal.fs.writeFile("/home/%s/.remote" % username, "REMOTE=%s" % remote)
+        authorized_keys = "{ssh_dir}/authorized_keys".format(ssh_dir=ssh_dir)
+        for key in iyo_user_info["publicKeys"]:
+            authorize(username, key['publickey'], authorized_keys, **settings)
+    shutil.copy('/root/.ssh/id_rsa', "/home/%s/.ssh" % username)
+    with open('/home/%s/.remote' % username, 'w+') as f:
+        f.write("REMOTE=%s" % remote)
+    call(['chown',  '-R', '{username}:{username}'.format(username=username), home])
     provisioned = dict(username=username, password=password, ssh_ip=app.config['SSH_IP'],
                        ssh_port=app.config['SSH_PORT'],
                        warned=False, gateone_url=app.config['GATEONE_URL'])
@@ -144,9 +174,8 @@ def provision(remote):
     database.add(ssh_session)
     database.commit()
 
-
     def _kill_session():
-        j.sal.fs.chown("/home/%s/.ssh" % username, "root", "root")
+        shutil.chown("/home/%s/.ssh" % username, 'root', 'root')
         while True:
             for p in psutil.process_iter():
                 if p.username() == username and p.name() == "ssh":
@@ -166,7 +195,7 @@ def provision(remote):
                 break
         try:
             idx = app.config["idx"]
-            if not j.sal.fs.exists("/var/recordings/%s.json" % username):
+            if not os.path.exists("/var/recordings/%s.json" % username):
                 database.delete(ssh_session)
                 database.commit()
             else:
@@ -175,26 +204,27 @@ def provision(remote):
                 with lock:
                     idx.index(username, ssh_session.start, ssh_session.end, iyo_user_info['username'], remote)
         finally:
-            if j.sal.fs.exists('/home/%s' % username):
-                j.tools.prefab.local.system.user.remove(username, rmhome=True)
+            if os.path.exists('/home/%s' % username):
+                call(['userdel', '-r', username])
 
 
     def _monitor():
         now = int(time.time())
         stop = False
         try:
-            if not j.sal.fs.exists("/home/%s/.started" % username):
+            if not os.path.exists("/home/%s/.started" % username):
                 stop = True
-            if j.sal.fs.exists("/home/%s/.ended" % username):
+            if os.path.exists("/home/%s/.ended" % username):
                 stop = True
             elif now > (start + app.config["SSH_SESSION_TIME_OUT"]):
                 stop = True
             elif not provisioned["warned"] and now > (start + app.config["SSH_SESSION_TIME_OUT"]
                                                       - SESSION_WARN_TIME):
-                exit_code, stdout, _ = j.tools.prefab.local.core.run("who")
-                if exit_code != 0:
+                try:
+                    stdout = check_output(['who'])
+                except CalledProcessError:
                     return
-                lines = [line for line in stdout.splitlines() if username in line]
+                lines = [line for line in stdout.decode().splitlines() if username in line]
                 for line in lines:
                     parts = [s for s in line.split(" ") if s]
                     with open("/dev/%s" % parts[1], 'w') as f:
@@ -259,19 +289,36 @@ def sessions():
     return jsonify(result)
 
 
+
+
 @app.route("/sessions/<session_id>")
 @authenticated
 def session_download(session_id):
     """
     Download sessions
     """
+    detailed = request.args.get('detailed', 'false')
     database = app.config["db"]()
     if database.query(Session).filter(Session.username == session_id).count() != 1:
         return "Session not found!", 404
     filename = "/var/recordings/%s.json" % session_id
-    if not j.sal.fs.exists(filename):
+    if not os.path.exists(filename):
         return "Session recording not found!", 404
-    return j.sal.fs.readFile(filename)
+    with open(filename, 'r') as f:
+        data = f.read()
+    if detailed == 'true':
+        session = database.query(Session).get(session_id)
+        session_data = dict(
+            username=session.iyo_username,
+            firstname=session.iyo_firstname,
+            lastname=session.iyo_lastname,
+            start=session.start.timestamp(),
+            end=session.end.timestamp() if session.end else None,
+            remote = session.remote,
+            data = data
+        )
+        return jsonify(session_data)
+    return data
 
 
 @app.route("/server/config")                                                                                                                                                                       
