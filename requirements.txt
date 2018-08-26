@@ -1,3 +1,4 @@
+pyyaml
 asciinema==1.4.0
 flask
 SQLAlchemy
@@ -6,3 +7,5 @@ ijson
 pyjwt
 gevent==1.2.2
 flask_itsyouonline
+psutil
+requests

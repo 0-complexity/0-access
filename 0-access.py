@@ -29,7 +29,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import signal
 from threading import Lock
 import subprocess
-from subprocess import  check_output, CalledProcessError, call, run
+from subprocess import  check_output, CalledProcessError, call
 import crypt
 import os
 import shutil
