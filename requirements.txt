@@ -9,3 +9,4 @@ gevent==1.2.2
 flask_itsyouonline
 psutil
 requests
+cryptography

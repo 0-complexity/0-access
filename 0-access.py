@@ -29,7 +29,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import signal
 from threading import Lock
 import subprocess
-from subprocess import  check_output, CalledProcessError, call
+from gevent.subprocess import  check_output, CalledProcessError, call, Popen
 import crypt
 import os
 import shutil
@@ -73,11 +73,12 @@ def run(**kwargs):
     configure(app, kwargs['organization'], kwargs['client_secret_'], "%s/callback" % kwargs['uri'],
               '/callback', 'user:publickey:ssh')
 
+    Popen(["/usr/sbin/sshd", "-D"])
     try:
         #check if sshd is running if not run it
         check_output(['pidof', '-s', 'sshd'])
     except CalledProcessError:
-        call(["/usr/sbin/sshd"])
+        Popen(["/usr/sbin/sshd", "-D"])
 
     from sqlalchemy import create_engine
     engine = create_engine('sqlite:////var/recordings/0-access.sqlite')
