@@ -74,6 +74,8 @@ def run(**kwargs):
               '/callback', 'user:publickey:ssh')
 
     Popen(["/usr/sbin/sshd", "-D"])
+    if not os.path.exists('/var/recordings/index'):
+        os.makedirs('/var/recordings/index')
     try:
         #check if sshd is running if not run it
         check_output(['pidof', '-s', 'sshd'])
