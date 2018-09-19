@@ -103,6 +103,13 @@ def root():
     """
     return render_template('root.html')
 
+@app.route("/ping")
+def ping():
+    """
+    Ping the server
+    """
+    return jsonify({'ping': 'pong'})
+
 @app.route("/ssh/<remote>", methods=["GET"])
 @authenticated
 def ssh(remote):
