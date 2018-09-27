@@ -6,7 +6,7 @@
 
 
 from gevent import monkey, sleep, spawn_later
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 monkey.patch_socket()
 monkey.patch_ssl()
 
@@ -74,8 +74,15 @@ def run(**kwargs):
               '/callback', 'user:publickey:ssh')
 
     Popen(["/usr/sbin/sshd", "-D"])
-    if not os.path.exists('/var/recordings/index'):
-        os.makedirs('/var/recordings/index')
+    os.makedirs('/var/recordings/index', exist_ok=True)
+
+    sshdir = '/etc/ssh'
+    os.makedirs(sshdir, exist_ok=True)
+    for cfgfile in ['sshd_config', 'ssh_config']:
+        with open(os.path.join(sshdir, cfgfile), 'a+'):
+            pass
+    if not os.path.exists(os.path.join(sshdir, 'ssh_host_rsa_key')):
+        check_output(['dpkg-reconfigure', 'openssh-server'])
     try:
         #check if sshd is running if not run it
         check_output(['pidof', '-s', 'sshd'])
